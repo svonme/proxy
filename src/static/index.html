@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="author" content="svon  svon@svon.org">
+  <link type="image/x-icon" rel="shortcut icon png" href="https://cdn.svon.org/images/svon.png!/format/webp">
+  <title>Proxy</title>
+  <!--[if lt IE 9]>
+    <script src="https://cdn.svon.org/js/json2.js"></script>
+    <script src="https://cdn.svon.org/js/es5-shim.min.js"></script>
+    <script src="https://cdn.svon.org/js/es5-sham.min.js"></script>
+  <![endif]-->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.svon.org/js/require.js"></script>
+  <script type="text/javascript">
+    require.config({
+      baseUrl: "https://cdn.svon.org/",
+      paths: {
+        "$": "libs/jquery.min",
+        "bootstrap": "libs/bootstrap/js/bootstrap.min"
+      },
+      map: {
+        "*" : {
+          "css"  : "https://cdn.svon.org/js/css.js"
+        }
+      },
+      shim: {
+        "$" : {
+          init: function(){
+            return $.noConflict();
+          }
+        },
+        "bootstrap":{
+          "deps": ["$", "css!libs/bootstrap/css/bootstrap.min.css"]
+        }
+      }
+    });
+  </script>
+  <style type="text/css">
+    .pointer{
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body id="main" style="display: none;">
+  <script>require(["bootstrap"]);</script>
+  <div class="container">
+    <br/><br/><br/>
+    
+    <div class="row">
+      <div class="col-md-9">
+        <div id="form-con">
+          <form onsubmit="return false;" autocomplete="off">
+            <div class="form-group">
+              <label>项目文件地址</label>
+              <input type="text" class="form-control" autocomplete="off" placeholder="请填写项目文件地址" name="path" value="/Users/svon/Works/demo">
+            </div>
+            <div class="form-group">
+              <label>项目运行端口</label>
+              <input type="text" class="form-control" autocomplete="off" placeholder="填写项目运行的端口" name="port">
+              <p class="help-block">本地开发环境运行端口, 默认 8080</p>
+            </div>
+            <div class="form-group">
+              <label>服务器接口地址</label>
+              <input type="text" class="form-control" autocomplete="off" placeholder="填写后台服务器接口地址" name="proxy">
+              <p class="help-block">请求 API 的地址, 只需填写域名端口</p>
+              <p class="help-block">假如服务器接口为 : http://192.168.1.100:8080/api/get/id/1</p>
+              <p class="help-block">应填写为 : http://192.168.1.100:8080</p>
+              <p class="help-block">不填写将不会开启代理服务</p>
+            </div>
+            <button id="submit" class="btn btn-primary">确定, 开启代理</button>
+          </form>
+        </div>
+        <div id="logs-con" style="display: none;">
+        </div>   
+      </div>
+      <div class="col-md-3">
+        <h3 style="margin-top: 0;margin-bottom: 30px;">
+          <span class="pointer pull-right glyphicon glyphicon-plus" title="添加新的代理"></span>
+          <span>
+            已启动服务<small>进程 ID</small>
+          </span>
+        </h3>
+        <ul class="list-group">
+        </ul>
+      </div>
+    </div>
+    
+  </div>
+  
+  <div class="modal fade" tabindex="-1" id="message">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">提示</h4>
+        </div>
+        <div class="modal-body">
+          <p class="tips-text"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="./main.js"></script>
+</body>
+</html>

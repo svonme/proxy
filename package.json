@@ -1,0 +1,21 @@
+{
+  "name": "proxy",
+  "version": "1.0.0",
+  "description": "nodejs proxy",
+  "main": "index.js",
+  "scripts": {
+    "test": "node .",
+    "stop": "./node_modules/.bin/pm2 stop proxy",
+    "start": "./node_modules/.bin/pm2 start index.js --name proxy",
+    "restart": "./node_modules/.bin/pm2 restart proxy",
+    "kill": "./node_modules/.bin/pm2 delete proxy"
+  },
+  "author": "svon@svon.org",
+  "license": "MIT",
+  "devDependencies": {
+    "express": "^4.15.3",
+    "http-server": "^0.10.0",
+    "pm2": "^2.4.6",
+    "socket.io": "^2.0.1"
+  }
+}
