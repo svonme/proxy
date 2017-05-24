@@ -20,3 +20,7 @@
 ### 停止
 
     npm stop     // 关闭所有代理
+
+### 重启
+
+    npm restart 
