@@ -24,3 +24,14 @@
 ### 重启
 
     npm restart 
+
+
+### 例子
+
+![填写配置](./test/blog1.png)
+
+![访问服务](./test/blog2.png)
+
+![查看日志](./test/blog3.png)
+
+
