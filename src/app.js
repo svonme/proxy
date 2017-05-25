@@ -16,6 +16,19 @@ app.use(express.static(staticDir));
 
 let pid = {};
 
+function stdout(info){
+  //标准日志
+  io.emit('message', info);
+}
+function stderr(info){
+  //错误日志
+  io.emit('message', info);
+}
+function close(info){
+  //服务关闭，退出
+  io.emit('message', info);
+}
+
 io.on('connection', function (socket) {
 
   socket.on('kill', function (pid) {
@@ -53,16 +66,7 @@ io.on('connection', function (socket) {
       data['proxy'] = protocol + "//" + host;
     }
 
-    var httpserver = proxy(data, function(info){
-      //标准日志
-      socket.emit('message', info);
-    }, function(info){
-      //错误日志
-      socket.emit('message', info);
-    }, function(info){
-      //服务关闭，退出
-      socket.emit('message', info);
-    });
+    var httpserver = proxy(data, stdout, stderr, close);
 
     
 

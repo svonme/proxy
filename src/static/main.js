@@ -8,33 +8,87 @@ define("message", ["$"], function($){
   return Message;
 });
 
+define("logs", ["$"], function($){
+  var $logs = $("#logs-con");
+  var $form = $("#form-con");
+  function Logs(){
+    this.show = function(pid){
+      $form.hide();
+      $logs.show();
+      if(pid){
+        this.append(pid);
+        $("#pid-" + pid, $logs).show().siblings().hide();
+        var $groupI = $("#group-i-" + pid);
+        $groupI.addClass('active').siblings('.active').removeClass('active');
+      }
+    };
+
+    this.hide = function(){
+      $logs.hide();
+      $form.show();
+      $(".list-group-item.active", ".list-group").removeClass('active');
+    };
+
+    this.append = function(pid, port){
+      if(pid){
+        var $item = $("#pid-" + pid, $logs);
+        if($item.length < 1){
+          var html = '<div class="list" id="pid-'+ pid +'" style="display: none;">'+
+                          '<div>'+
+                            '<div class="btn btn-warning stop-proxy" data-id="'+ pid +'">'+
+                              '<span class="glyphicon glyphicon-remove"></span>停止该服务'+
+                            '</div>';
+                  if(port){
+                    var href = "http://127.0.0.1:" + port;
+                    html += '<a class="btn btn-primary" href="'+ href +'" target="_blank" style="margin-left:50px;">'+
+                              '访问 : ' + href + 
+                            '</a>';
+                  }
+                    html +='<hr/>'+
+                          '</div>'+
+                      '</div>';
+          $logs.append(html);
+        }
+      }
+    }
+
+    this.remove = function(pid){
+      if(pid){
+        this.hide();
+        $("#pid-"+pid, $logs).remove();
+      }
+    }
+
+    this.message = function(pid, info){
+      var html = "<p>";
+      if(typeof info == "object"){
+        for(var key in info){
+          html += info[key]+"<br/>";
+        }
+      }else{
+        html += info;
+      }
+      html += "</p><hr/>";
+      $("#pid-"+pid, $logs).append(html);
+    }
+  }
+  return new Logs();
+});
 
 
-define("socket", ["$","message"], function($, Message){
+
+define("socket", ["$","message", "logs"], function($, Message, logs){
   var origin = window.location.origin;
   var socket = io.connect(origin);
-
-  var $logs = $("#logs-con");
 
   socket.on('message', function (data) {
     var info = data.info;
     var pid = data.pid;
-    var html = "<p>";
-    if(typeof info == "object"){
-      for(var key in info){
-        html += info[key]+"<br/>";
-      }
-    }else{
-      html += info;
-    }
-    html += "</p><hr/>";
-    $("#pid-"+pid, $logs).append(html);
+    logs.message(pid, info);
   });
 
   socket.on('proxy', function (data) {
-    $("#form-con").hide();
-    $logs.show();
-    $("#pid-"+data.pid, $logs).show().siblings().hide();
+    logs.show(data.pid); //显示日志，并且定位到当前任务
   });
 
   socket.on('err', function (error) {
@@ -45,19 +99,10 @@ define("socket", ["$","message"], function($, Message){
   socket.on('pids', function (list) {
     var li = [];
     list.forEach(function(item){
-      li.push('<li class="list-group-item pointer" data-id="pid-'+ item.pid +'">' +
+      li.push('<li id="group-i-'+ item.pid +'" class="list-group-item pointer" data-id="'+ item.pid +'">' +
                 '<span class="badge">'+ item.pid +'</span>'+ item.port +
               '</li>');
-      if($("#pid-" + item.pid).length < 1){
-        $logs.append('<div class="list" id="pid-'+ item.pid +'" style="display:none;">'+
-                        '<div>'+
-                          '<div class="btn btn-warning stop-proxy" data-id="'+ item.pid +'">'+
-                            '<span class="glyphicon glyphicon-remove"></span>停止该服务'+
-                          '</div>'+
-                          '<hr/>'+
-                        '</div>'+
-                    '</div>');
-      }
+      logs.append(item.pid, item.port);
     });
     $(".list-group").html(li.join(""));
   });
@@ -79,7 +124,7 @@ define("socket", ["$","message"], function($, Message){
 
 
 
-define("proxy", ["$","message", "socket"], function($, Message, Socket){
+define("proxy", ["$","message", "socket", "logs"], function($, Message, Socket, logs){
   var $main = $("#main");
   var socket = new Socket();
 
@@ -130,26 +175,18 @@ define("proxy", ["$","message", "socket"], function($, Message, Socket){
     });
 
     $(".glyphicon-plus", $main).on("click", function(){
-      $("#logs-con").hide();
-      $("#form-con").show();
+      logs.hide();//隐藏日志，显示创建代理任务界面
     });
 
     $(".list-group", $main).on("click", ".list-group-item", function(){
-      $("#form-con").hide();
-      $("#logs-con").show();
       var id = $(this).data("id");
-
-      $("#pid-"+id).show().siblings().hide();
+      logs.show(id);
     });
 
     $("#logs-con", $main).on("click",".stop-proxy",function(){
       var id = $(this).data("id");
       socket.kill(id);
-
-      $("#logs-con").hide();
-      $("#form-con").show();
-
-      $("#pid-"+id).remove();
+      logs.remove(id);
     });
   }
 
