@@ -1,3 +1,110 @@
+define("formatJSON",[], function(){
+  var realTypeOf = function (v) {
+    if (typeof(v) == "object") {
+        if (v === null) return "null";
+        if (v.constructor == ([]).constructor) return "array";
+        if (v.constructor == (new Date).constructor) return "date";
+        if (v.constructor == (new RegExp).constructor) return "regex";
+        return "object";
+    }
+    return typeof(v);
+  };
+
+  var escapeHTML = function (string) {                                       
+    return (string + "").replace(/&/g,'&amp;').replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+  };
+
+  /**
+   * 通过返回JSON数据，进行格式化
+   * @param {Object} oData
+   * @param {String} sIndent
+   * @returns {*}
+   */
+  var formatJSON = function (oData, sIndent) {
+      if (!oData) {
+          return '';
+      }
+      var sHTML,
+          iCount;
+      if (arguments.length < 2) {
+          sIndent = "";
+      }
+      var sIndentStyle = "    ",
+          sDataType = realTypeOf(oData);
+
+      // open object
+      if (sDataType === "array") {
+          if (oData.length === 0) {
+              return "[]";
+          }
+          sHTML = "[";
+      } else {
+          iCount = 0;
+          Object.keys(oData).forEach(function () {
+              iCount++;
+          });
+          if (iCount === 0) { // object is empty
+              return "{}";
+          }
+          sHTML = "{";
+      }
+      // loop through items
+      iCount = 0;
+      Object.keys(oData).forEach(function(sKey){
+        var vValue = oData[sKey];
+        if (iCount > 0) {
+            sHTML += ",";
+        }
+        if (sDataType === "array") {
+            sHTML += ("\n" + sIndent + sIndentStyle);
+        } else {
+            sHTML += ("\n" + sIndent + sIndentStyle + "\"" + escapeHTML(sKey) + "\"" + ": ");
+        }
+
+        // display relevant data type
+        switch (realTypeOf(vValue)) {
+            case "array":
+            case "object": {
+                sHTML += formatJSON(vValue, (sIndent + sIndentStyle));
+            }
+                break;
+            case "boolean":
+            case "number": {
+                sHTML += vValue.toString();
+            }
+                break;
+            case "null": {
+                sHTML += "null";
+            }
+                break;
+            case "string": {
+                sHTML += ("\"" + escapeHTML(vValue) + "\"");
+            }
+                break;
+            default: {
+                sHTML += ("TYPEOF: " + typeof(vValue));
+            }
+        }
+
+        // loop
+        iCount++;
+      })
+
+      // close object
+      if (sDataType === "array") {
+          sHTML += ("\n" + sIndent + "]");
+      } else {
+          sHTML += ("\n" + sIndent + "}");
+      }
+      // return
+      return sHTML;
+  };
+  return formatJSON;
+})
+
+
+
+
 define("message", ["$"], function($){
   function Message(e){
     var message = e.message || "异常，请稍后再试";
@@ -8,7 +115,7 @@ define("message", ["$"], function($){
   return Message;
 });
 
-define("logs", ["$"], function($){
+define("logs", ["$", "formatJSON"], function($, formatJSON){
   var $logs = $("#logs-con");
   var $form = $("#form-con");
   function Logs(){
@@ -60,15 +167,17 @@ define("logs", ["$"], function($){
     }
 
     this.message = function(pid, info){
-      var html = "<p>";
+      var html = "<div><pre>";
       if(typeof info == "object"){
-        for(var key in info){
-          html += info[key]+"<br/>";
-        }
+        html += formatJSON(info);
       }else{
-        html += info;
+        if(info.slice(0,1) == "{"){
+          html += formatJSON(eval('('+info+')'));
+        }else{
+          html +=info;
+        }
       }
-      html += "</p><hr/>";
+      html += "</pre></div><hr/>";
       $("#pid-"+pid, $logs).append(html);
     }
   }

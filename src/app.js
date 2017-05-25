@@ -4,11 +4,14 @@ var fs = require('fs');
 var express = require('express');
 var socket = require('socket.io');
 var url = require("url");
+
 var proxy = require('./proxy');
 var Pid = require('./pid');
 var app = express();
 var server = http.Server(app);
 var io = socket(server);
+
+
 
 var staticDir = path.normalize(path.join(__dirname, "static"));
 //静态文件资源
@@ -64,16 +67,17 @@ io.on('connection', function (socket) {
       data['proxy'] = protocol + "//" + host;
     }
 
-    var httpserver = proxy(data, stdout, stderr, close);
+    proxy(data, stdout, stderr, close, function(httpserver){
+      Pid.add(httpserver, socket);
+      socket.emit('proxy', {
+        "message": "参数正确，启动代理中",
+        "pid": httpserver.pid
+      });
+    });
 
     
 
-    Pid.add(httpserver, socket);
-
-    socket.emit('proxy', {
-      "message": "参数正确，启动代理中",
-      "pid": httpserver.pid
-    });
+    
     return true;
 
   });
