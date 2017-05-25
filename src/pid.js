@@ -1,9 +1,9 @@
 // 进程维护
 
-let map = {};
+var map = {};
 
 function refresh(socket){
-  let list = [];
+  var list = [];
   for(var key in map){
     var httpserver = map[key];
     list.push({

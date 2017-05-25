@@ -14,8 +14,6 @@ var staticDir = path.normalize(path.join(__dirname, "static"));
 //静态文件资源
 app.use(express.static(staticDir));
 
-let pid = {};
-
 function stdout(info){
   //标准日志
   io.emit('message', info);
