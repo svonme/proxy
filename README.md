@@ -25,6 +25,9 @@
 
     npm restart 
 
+### 更新项目
+
+    git pull origin master && npm install
 
 ### 例子
 
