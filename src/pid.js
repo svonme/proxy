@@ -21,7 +21,9 @@ function Add(httpserver, socket){
 
 function Kill(pid, socket){
   var httpserver = map[pid];
-  httpserver.kill(pid); //关闭进程
+  if(httpserver){
+    httpserver.kill(pid); //关闭进程
+  }
   delete map[pid];
   refresh(socket);
 }
