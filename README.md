@@ -27,7 +27,8 @@
 
 ### 更新项目
 
-    git pull origin master && npm install
+    git pull origin master
+    npm install
 
 ### 例子
 
