@@ -47,7 +47,7 @@ func urlFormat(value string, proxyUrl string) *url.URL {
 			tmp, _ := url.Parse(fmt.Sprintf("%s://%s", scheme, link))
 			data, _ := url.Parse(
 				fmt.Sprintf(
-					"https://proxy.svon.org/%s",
+					"https://proxy.iprouter.top/%s",
 					url.QueryEscape(tmp.String()),
 				),
 			)
